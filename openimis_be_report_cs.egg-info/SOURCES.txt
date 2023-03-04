@@ -1,0 +1,17 @@
+LICENCE.md
+MANIFEST.in
+README.md
+setup.py
+openimis_be_report_cs.egg-info/PKG-INFO
+openimis_be_report_cs.egg-info/SOURCES.txt
+openimis_be_report_cs.egg-info/dependency_links.txt
+openimis_be_report_cs.egg-info/requires.txt
+openimis_be_report_cs.egg-info/top_level.txt
+reportcs/__init__.py
+reportcs/admin.py
+reportcs/apps.py
+reportcs/models.py
+reportcs/report.py
+reportcs/tests.py
+reportcs/urls.py
+reportcs/views.py
