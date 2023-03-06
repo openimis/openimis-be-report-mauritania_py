@@ -1,0 +1,17 @@
+LICENCE.md
+MANIFEST.in
+README.md
+setup.py
+openimis_be_report_mauritania.egg-info/PKG-INFO
+openimis_be_report_mauritania.egg-info/SOURCES.txt
+openimis_be_report_mauritania.egg-info/dependency_links.txt
+openimis_be_report_mauritania.egg-info/requires.txt
+openimis_be_report_mauritania.egg-info/top_level.txt
+reportmauritania/__init__.py
+reportmauritania/admin.py
+reportmauritania/apps.py
+reportmauritania/models.py
+reportmauritania/report.py
+reportmauritania/tests.py
+reportmauritania/urls.py
+reportmauritania/views.py

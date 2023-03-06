@@ -1,6 +1,6 @@
 from distutils.command import upload
-from reportcs.models import  beneficiary_card_query
-from reportcs.report_templates import rptBeneficiaryCard
+from reportmauritania.models import  beneficiary_card_query
+from reportmauritania.report_templates import rptBeneficiaryCard
 
 
 report_definitions = [ 
@@ -9,7 +9,7 @@ report_definitions = [
         "engine": 0,
         "default_report":rptBeneficiaryCard.template,
         "description": "Etat de paiement",
-        "module": "reportcs",
+        "module": "reportmauritania",
         "python_query": beneficiary_card_query, 
         "permission": ["131215"],
     }

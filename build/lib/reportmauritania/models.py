@@ -10,7 +10,6 @@ from django.db.models import Count
 from django.db.models import F
 from insuree.models import Insuree
 from insuree.models import InsureePolicy
-import json
 import datetime
 
 def beneficiary_card_query(user, **kwargs):
