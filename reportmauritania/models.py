@@ -14,6 +14,7 @@ import datetime
 import qrcode
 import base64
 from io import BytesIO
+import os
 
 def beneficiary_card_query(user, **kwargs):
 
@@ -21,7 +22,7 @@ def beneficiary_card_query(user, **kwargs):
     qr = qrcode.QRCode()
 
     insureeObj = Insuree.objects.filter(
-            chf_id="346940557",
+            chf_id="070707070",
             validity_to__isnull=True
             ).first()
 
@@ -50,16 +51,28 @@ def beneficiary_card_query(user, **kwargs):
     # Get the byte data
     img_str = base64.b64encode(buffered.getvalue())
     #img_encoded = base64.b64encode(img.getvalue())
-    print(img_str)
-    print(insureeObj.photo.folder)
-    print(insureeObj.photo.filename)
+
+    filename = insureeObj.photo.folder+insureeObj.photo.filename
+    print(filename)
+    if os.path.exists(filename):
+        with open(filename, "rb") as image_file:
+            encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+            print(encoded_img)
+    else :
+        with open("default-img.png", "rb") as image_file:
+            encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+            print(encoded_img)
+        print("File not found")
+
+
     dictBase =  {
         "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
-        "PhotoInsuree": "data:image/PNG;base64,"+img_str.decode("utf-8"),
+        "PhotoInsuree": "data:image/PNG;base64,"+encoded_img,
         "Prenom" : insureeObj.other_names,
         "Nom" : insureeObj.last_name,
         "DateNaissance" : insureeObj.dob,
         "DateExpiration" : insureeObj.dob,
+        "idInsuree" : insureeObj.chf_id
         }
 
     print(dictBase)

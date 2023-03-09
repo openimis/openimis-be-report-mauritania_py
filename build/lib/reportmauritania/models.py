@@ -11,54 +11,56 @@ from django.db.models import F
 from insuree.models import Insuree
 from insuree.models import InsureePolicy
 import datetime
+import qrcode
+import base64
+from io import BytesIO
 
 def beneficiary_card_query(user, **kwargs):
-    date_from = kwargs.get("date_from")
-    date_to = kwargs.get("date_to")
-    location0 = kwargs.get("location0")
-    location1 = kwargs.get("location1")
-    location2 = kwargs.get("location2")
-    hflocation = kwargs.get("hflocation")
-    
-    format = "%Y-%m-%d"
 
-    date_from_object = datetime.datetime.strptime(date_from, format)
-    date_from_str = date_from_object.strftime("%d/%m/%Y")
+    # Create qr code instance
+    qr = qrcode.QRCode()
 
-    date_to_object = datetime.datetime.strptime(date_to, format)
-    date_to_str = date_to_object.strftime("%d/%m/%Y")
+    insureeObj = Insuree.objects.filter(
+            chf_id="346940557",
+            validity_to__isnull=True
+            ).first()
 
+    # The data that you want to store
+    data = {
+        'chf_id': insureeObj.chf_id,
+        'last_name': insureeObj.last_name,      
+        'other_names': insureeObj.other_names
+    }
+
+    # Add data
+    qr.add_data(data)
+
+    # Generate the QR Code
+    qr.make()
+
+    # Create an image from the QR Code instance
+    img = qr.make_image()
+
+    # Create a BytesIO object
+    buffered = BytesIO()
+
+    # Save the image to the BytesIO object
+    img.save(buffered, format="png")
+
+    # Get the byte data
+    img_str = base64.b64encode(buffered.getvalue())
+    #img_encoded = base64.b64encode(img.getvalue())
+    print(img_str)
+    print(insureeObj.photo.folder)
+    print(insureeObj.photo.filename)
     dictBase =  {
-        "dateFrom": date_from_str,
-        "dateTo": date_to_str,
-        "prestationForfaitaire" : [],
-        "prestationPlafonnees" : [],
-        "prestationsNonMedicales" : [],
-        "invoiceElemtTotal": []
+        "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
+        "PhotoInsuree": "data:image/PNG;base64,"+img_str.decode("utf-8"),
+        "Prenom" : insureeObj.other_names,
+        "Nom" : insureeObj.last_name,
+        "DateNaissance" : insureeObj.dob,
+        "DateExpiration" : insureeObj.dob,
         }
 
-    dictGeo = {}
-   
-
-    if location0:
-        location0_str = Location.objects.filter(
-            code=location0,
-            validity_to__isnull=True
-            ).first().name
-        dictBase["region"] = location0_str
-
-    if location1:
-        location1_str = Location.objects.filter(
-            code=location1,
-            validity_to__isnull=True
-            ).first().name
-        dictBase["district"] =location1_str
-    
-    if location2:
-        location2_str = Location.objects.filter(
-            code=location2,
-            validity_to__isnull=True
-            ).first().name
-        dictBase["area"] = location2_str
-    
+    print(dictBase)
     return dictBase
