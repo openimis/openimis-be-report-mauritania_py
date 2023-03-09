@@ -52,16 +52,14 @@ def beneficiary_card_query(user, **kwargs):
     img_str = base64.b64encode(buffered.getvalue())
     #img_encoded = base64.b64encode(img.getvalue())
 
-    filename = insureeObj.photo.folder+insureeObj.photo.filename
+    filename = "openIMISphone/"+insureeObj.photo.folder+"/"+insureeObj.photo.filename
     print(filename)
     if os.path.exists(filename):
         with open(filename, "rb") as image_file:
             encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-            print(encoded_img)
     else :
         with open("default-img.png", "rb") as image_file:
             encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-            print(encoded_img)
         print("File not found")
 
 
