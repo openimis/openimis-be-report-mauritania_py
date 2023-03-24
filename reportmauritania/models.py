@@ -77,7 +77,6 @@ import os
 #     return dictBase
 
 def beneficiaries_list_card_query(user, **kwargs):
-    print("kwargs ", kwargs)
     ids = kwargs.get("insureeids", [])
     insurees_ids = []
     if ids:
@@ -92,6 +91,7 @@ def beneficiaries_list_card_query(user, **kwargs):
             )
 
     insurees_data = []
+    print("list is ", insuree_list)
     for insureeObj in insuree_list:
         # The data that you want to store
         data = {
@@ -133,17 +133,23 @@ def beneficiaries_list_card_query(user, **kwargs):
                 encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
             print("File not found")
 
-        insurees_data.append({
+        insuree_policy = InsureePolicy.objects.filter(
+            insuree__id=insureeObj.id,
+            validity_to__isnull=True).order_by('-expiry_date').first()
+        mydata = {
             "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
             "PhotoInsuree": "data:image/PNG;base64,"+encoded_img,
             "Prenom" : insureeObj.other_names,
             "Nom" : insureeObj.last_name,
             "DateNaissance" : insureeObj.dob,
-            "DateExpiration" : insureeObj.dob,
             "idInsuree" : insureeObj.chf_id
             }
-        )
-        
+        if insuree_policy:
+            mydata.update({
+                "DateExpiration" : insuree_policy.expiry_date
+                }
+            )
+        insurees_data.append(mydata)
     dictBase =  {
         "InsureeList" : insurees_data
         }
