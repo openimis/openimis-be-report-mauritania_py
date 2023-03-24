@@ -119,7 +119,11 @@ def beneficiaries_list_card_query(user, **kwargs):
         img_str = base64.b64encode(buffered.getvalue())
         #img_encoded = base64.b64encode(img.getvalue())
 
-        filename = "openIMISphone/"+insureeObj.photo.folder+"/"+insureeObj.photo.filename
+        filename = ""
+        try:
+            filename = "openIMISphone/"+insureeObj.photo.folder+"/"+insureeObj.photo.filename
+        except:
+            pass
         print(filename)
         if os.path.exists(filename):
             with open(filename, "rb") as image_file:
