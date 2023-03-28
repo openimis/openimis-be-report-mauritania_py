@@ -1,0 +1,16 @@
+.DS_Store
+**/.vscode
+**/.idea
+**/venv
+**/.env
+**/__pycache__
+**/.coverage
+**/coverage.xml
+**/coverage
+**/*.log
+**/*.log.*
+**/*.mo
+**/staticfiles
+build
+*.egg-info/**
+**/__pycache__
