@@ -15,6 +15,7 @@ import qrcode
 import base64
 from io import BytesIO
 import os
+from PIL import Image, ImageDraw, ImageFont
 
 # def beneficiary_card_query(user, **kwargs):
 
@@ -136,13 +137,33 @@ def beneficiaries_list_card_query(user, **kwargs):
         insuree_policy = InsureePolicy.objects.filter(
             insuree__id=insureeObj.id,
             validity_to__isnull=True).order_by('-expiry_date').first()
+        
+        # Last name as image
+        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arabic.ttf", size=60)
+        img_prenom = Image.new('RGB', (500, 60), color = (255, 255, 255))
+        d = ImageDraw.Draw(img_prenom)
+        d.text((10,10), str(insureeObj.other_names), fill=(63, 22, 168), font=font)
+        my_buffered = BytesIO()
+        img_prenom.save(my_buffered, format="png")
+        img_prenom_str = base64.b64encode(my_buffered.getvalue())
+
+        # Firstname as image
+        img_nom = Image.new('RGB', (500, 60), color = (255, 255, 255))
+        d = ImageDraw.Draw(img_nom)
+        d.text((10,10), str(insureeObj.last_name), fill=(63, 22, 168), font=font)
+        my_buffered = BytesIO()
+        img_nom.save(my_buffered, format="png")
+        img_nom_str = base64.b64encode(my_buffered.getvalue())
+
         mydata = {
             "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
             "PhotoInsuree": "data:image/PNG;base64,"+encoded_img,
             "Prenom" : insureeObj.other_names,
             "Nom" : insureeObj.last_name,
             "DateNaissance" : insureeObj.dob,
-            "idInsuree" : insureeObj.chf_id
+            "idInsuree" : insureeObj.chf_id,
+            "imagePrenom": "data:image/PNG;base64,"+img_prenom_str.decode("utf-8"),
+            "imageNom": "data:image/PNG;base64,"+img_nom_str.decode("utf-8")
             }
         if insuree_policy:
             mydata.update({
