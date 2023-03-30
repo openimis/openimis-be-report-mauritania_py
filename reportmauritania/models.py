@@ -139,7 +139,7 @@ def beneficiaries_list_card_query(user, **kwargs):
             validity_to__isnull=True).order_by('-expiry_date').first()
         
         # Last name as image
-        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arabic.ttf", size=60)
+        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arabic.ttf", size=50)
         img_prenom = Image.new('RGB', (500, 60), color = (255, 255, 255))
         d = ImageDraw.Draw(img_prenom)
         d.text((10,10), str(insureeObj.other_names), fill=(63, 22, 168), font=font)
