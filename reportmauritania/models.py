@@ -83,8 +83,6 @@ def beneficiaries_list_card_query(user, **kwargs):
     if ids:
         ids = ids.split(',')
         insurees_ids = [eval(i) for i in ids]
-    # Create qr code instance
-    qr = qrcode.QRCode()
     
     insuree_list = Insuree.objects.filter(
             id__in=insurees_ids,
@@ -94,6 +92,8 @@ def beneficiaries_list_card_query(user, **kwargs):
     insurees_data = []
     print("list is ", insuree_list)
     for insureeObj in insuree_list:
+        # Create qr code instance
+        qr = qrcode.QRCode()
         # The data that you want to store
         data = {
             'chf_id': insureeObj.chf_id,
