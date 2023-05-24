@@ -129,6 +129,27 @@ def beneficiaries_list_card_query(user, **kwargs):
         if os.path.exists(filename):
             with open(filename, "rb") as image_file:
                 encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+        elif insureeObj.photo:
+            imageData = str(insureeObj.photo.photo)
+            myimage = base64.b64decode((imageData))
+            import imghdr
+            extension = imghdr.what(None, h=myimage)
+            print("extension ", extension)
+            if str(extension).lower() != 'png':
+                # save image to png, image can have different format leading to an
+                # error : image is not PNG
+                imgFile = open('/tmp/'+insureeObj.chf_id+'.jpeg', 'wb')
+                imgFile.write(myimage)
+                imgFile.close()
+
+                img1 = Image.open(r'/tmp/'+insureeObj.chf_id+'.jpeg')
+                img1.save(r'/tmp/'+insureeObj.chf_id+'.png')
+
+                with open('/tmp/'+insureeObj.chf_id+'.png', "rb") as image_file:
+                    encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+            else:
+                # already the expected extension (PNG)
+                encoded_img = imageData
         else :
             with open("default-img.png", "rb") as image_file:
                 encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
@@ -157,7 +178,7 @@ def beneficiaries_list_card_query(user, **kwargs):
 
         mydata = {
             "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
-            "PhotoInsuree": "data:image/PNG;base64,"+encoded_img,
+            "PhotoInsuree": "data:image/PNG;base64,"+str(encoded_img),
             "Prenom" : insureeObj.other_names,
             "Nom" : insureeObj.last_name,
             "DateNaissance" : insureeObj.dob,
