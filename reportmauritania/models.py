@@ -129,7 +129,7 @@ def beneficiaries_list_card_query(user, **kwargs):
         if os.path.exists(filename):
             with open(filename, "rb") as image_file:
                 encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-        elif insureeObj.photo:
+        elif insureeObj.photo and insureeObj.photo.photo:
             imageData = str(insureeObj.photo.photo)
             myimage = base64.b64decode((imageData))
             import imghdr
