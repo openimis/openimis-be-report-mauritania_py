@@ -119,17 +119,8 @@ def beneficiaries_list_card_query(user, **kwargs):
         # Get the byte data
         img_str = base64.b64encode(buffered.getvalue())
         #img_encoded = base64.b64encode(img.getvalue())
-
-        filename = ""
-        try:
-            filename = "openIMISphone/"+insureeObj.photo.folder+"/"+insureeObj.photo.filename
-        except:
-            pass
-        print(filename)
-        if os.path.exists(filename):
-            with open(filename, "rb") as image_file:
-                encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-        elif insureeObj.photo and insureeObj.photo.photo:
+ 
+        if insureeObj.photo and insureeObj.photo.photo:
             imageData = str(insureeObj.photo.photo)
             myimage = base64.b64decode((imageData))
             import imghdr
@@ -150,10 +141,20 @@ def beneficiaries_list_card_query(user, **kwargs):
             else:
                 # already the expected extension (PNG)
                 encoded_img = imageData
-        else :
-            with open("default-img.png", "rb") as image_file:
-                encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
-            print("File not found")
+        else:
+            filename = ""
+            try:
+                filename = "openIMISphone/"+insureeObj.photo.folder+"/"+insureeObj.photo.filename
+            except:
+                pass
+            print(filename)
+            if os.path.exists(filename):
+                with open(filename, "rb") as image_file:
+                    encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+            else:
+                with open("default-img.png", "rb") as image_file:
+                    encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+                print("File not found")
 
         insuree_policy = InsureePolicy.objects.filter(
             insuree__id=insureeObj.id,
