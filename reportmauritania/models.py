@@ -16,7 +16,7 @@ import base64
 from io import BytesIO
 import os
 from PIL import Image, ImageDraw, ImageFont
-
+import imghdr
 # def beneficiary_card_query(user, **kwargs):
 
 #     # Create qr code instance
@@ -123,7 +123,6 @@ def beneficiaries_list_card_query(user, **kwargs):
         if insureeObj.photo and insureeObj.photo.photo:
             imageData = str(insureeObj.photo.photo)
             myimage = base64.b64decode((imageData))
-            import imghdr
             extension = imghdr.what(None, h=myimage)
             print("extension ", extension)
             if str(extension).lower() != 'png':
@@ -145,12 +144,30 @@ def beneficiaries_list_card_query(user, **kwargs):
             filename = ""
             try:
                 filename = "openIMISphone/"+insureeObj.photo.folder+"/"+insureeObj.photo.filename
-            except:
-                pass
+            except Exception as e:
+                print(e)
             print(filename)
             if os.path.exists(filename):
                 with open(filename, "rb") as image_file:
-                    encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+                    imageData = base64.b64encode(image_file.read()).decode('utf-8')
+                    myimage = base64.b64decode((imageData))
+                    extension = imghdr.what(None, h=myimage)
+                    print("extension is: ", extension)
+                    if str(extension).lower() != 'png':
+                        # save image to png, image can have different format leading to an
+                        # error : image is not PNG
+                        imgFile = open('/tmp/'+insureeObj.chf_id+'.jpeg', 'wb')
+                        imgFile.write(myimage)
+                        imgFile.close()
+
+                        img1 = Image.open(r'/tmp/'+insureeObj.chf_id+'.jpeg')
+                        img1.save(r'/tmp/'+insureeObj.chf_id+'.png')
+
+                        with open('/tmp/'+insureeObj.chf_id+'.png', "rb") as image_file:
+                            encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
+                    else:
+                        # already the expected extension (PNG)
+                        encoded_img = imageData
             else:
                 with open("default-img.png", "rb") as image_file:
                     encoded_img = base64.b64encode(image_file.read()).decode('utf-8')
