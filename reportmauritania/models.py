@@ -190,17 +190,18 @@ def beneficiaries_list_card_query(user, **kwargs):
         img_prenom_arabe = Image.new('RGB', (500, 60), color = (255, 255, 255))
         d = ImageDraw.Draw(img_prenom_arabe)
         arab_other_names = insureeObj.arab_other_names
-        taille = len(arab_other_names)
-        print("taille ON ", taille)
-        if taille < 35:
-            # On ajoute les espaces pour pousser le texte a gauche, en arabe
-            end = 35 - taille
-            i = 1
-            char = ""
-            while i < end:
-                char += " "
-                i += 1
-            arab_other_names += char
+        if arab_other_names:
+            taille = len(arab_other_names)
+            print("taille ON ", taille)
+            if taille < 35:
+                # On ajoute les espaces pour pousser le texte a gauche, en arabe
+                end = 35 - taille
+                i = 1
+                char = ""
+                while i < end:
+                    char += " "
+                    i += 1
+                arab_other_names += char
         d.text((10,10), str(arab_other_names), fill=(63, 22, 168), font=font, direction='rtl', align='right',)
         my_buffered = BytesIO()
         img_prenom_arabe.save(my_buffered, format="png")
@@ -220,17 +221,18 @@ def beneficiaries_list_card_query(user, **kwargs):
         img_nom_arabe = Image.new('RGB', (500, 60), color = (255, 255, 255))
         d = ImageDraw.Draw(img_nom_arabe)
         arab_last_name = insureeObj.arab_last_name
-        taille = len(arab_last_name)
-        print("taille LN ", taille)
-        if taille < 35:
-            # On ajoute les espaces pour pousser le texte a gauche, en arabe
-            end = 35 - taille
-            i = 1
-            char = ""
-            while i < end:
-                char += " "
-                i += 1
-            arab_last_name += char
+        if arab_last_name
+            taille = len(arab_last_name)
+            print("taille LN ", taille)
+            if taille < 35:
+                # On ajoute les espaces pour pousser le texte a gauche, en arabe
+                end = 35 - taille
+                i = 1
+                char = ""
+                while i < end:
+                    char += " "
+                    i += 1
+                arab_last_name += char
         d.text((10,10), str(arab_last_name), fill=(63, 22, 168), font=font)
         my_buffered = BytesIO()
         img_nom_arabe.save(my_buffered, format="png")
