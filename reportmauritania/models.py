@@ -221,7 +221,7 @@ def beneficiaries_list_card_query(user, **kwargs):
         img_nom_arabe = Image.new('RGB', (500, 60), color = (255, 255, 255))
         d = ImageDraw.Draw(img_nom_arabe)
         arab_last_name = insureeObj.arab_last_name
-        if arab_last_name
+        if arab_last_name:
             taille = len(arab_last_name)
             print("taille LN ", taille)
             if taille < 35:
