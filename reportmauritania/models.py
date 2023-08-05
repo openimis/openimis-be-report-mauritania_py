@@ -189,7 +189,7 @@ def beneficiaries_list_card_query(user, **kwargs):
         # Last name (Arab) as image
         img_prenom_arabe = Image.new('RGB', (500, 60), color = (255, 255, 255))
         d = ImageDraw.Draw(img_prenom_arabe)
-        arab_other_names = insureeObj.arab_other_names
+        arab_other_names = insureeObj.arab_other_names or ""
         if arab_other_names:
             taille = len(arab_other_names)
             print("taille ON ", taille)
@@ -220,7 +220,7 @@ def beneficiaries_list_card_query(user, **kwargs):
         # Firstname (Arab) as image
         img_nom_arabe = Image.new('RGB', (500, 60), color = (255, 255, 255))
         d = ImageDraw.Draw(img_nom_arabe)
-        arab_last_name = insureeObj.arab_last_name
+        arab_last_name = insureeObj.arab_last_name or ""
         if arab_last_name:
             taille = len(arab_last_name)
             print("taille LN ", taille)
