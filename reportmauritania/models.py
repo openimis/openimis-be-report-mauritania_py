@@ -202,7 +202,7 @@ def beneficiaries_list_card_query(user, **kwargs):
                     char += " "
                     i += 1
                 arab_other_names += char
-        d.text((10,10), str(arab_other_names), fill=(63, 22, 168), font=font, direction='rtl', align='right',)
+        d.text((10,10), str(arab_other_names), fill=(63, 22, 168), font=font, direction='rtl', align='right')
         my_buffered = BytesIO()
         img_prenom_arabe.save(my_buffered, format="png")
         img_prenom_arabe_str = base64.b64encode(my_buffered.getvalue())
@@ -233,10 +233,20 @@ def beneficiaries_list_card_query(user, **kwargs):
                     char += " "
                     i += 1
                 arab_last_name += char
-        d.text((10,10), str(arab_last_name), fill=(63, 22, 168), font=font)
+        d.text((10,10), str(arab_last_name), fill=(63, 22, 168), font=font, direction='rtl', align='right')
         my_buffered = BytesIO()
         img_nom_arabe.save(my_buffered, format="png")
         img_nom_arabe_str = base64.b64encode(my_buffered.getvalue())
+
+        # title as image
+        boldfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arialbd.ttf", size=40)
+        img_nom_titre = Image.new('RGB', (500, 100), color = (255, 255, 255))
+        d = ImageDraw.Draw(img_nom_titre)
+        titre = "Prénom"
+        d.text((10,55), str(titre), fill=(63, 22, 168), font=boldfont)
+        my_buffered = BytesIO()
+        img_nom_titre.save(my_buffered, format="png")
+        img_titre_str = base64.b64encode(my_buffered.getvalue())
 
         mydata = {
             "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
@@ -257,7 +267,8 @@ def beneficiaries_list_card_query(user, **kwargs):
             )
         insurees_data.append(mydata)
     dictBase =  {
-        "InsureeList" : insurees_data
+        "InsureeList" : insurees_data,
+        "image_title": "data:image/PNG;base64,"+img_titre_str.decode("utf-8")
         }
 
     print(dictBase)
