@@ -437,48 +437,48 @@ def beneficiaries_embership_card_query(user, **kwargs):
         img_nom_arabe_str = base64.b64encode(my_buffered.getvalue())
 
         # label_prenom as image
-        boldfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arialbd.ttf", size=80)
-        img_nom_titre = Image.new('RGB', (500, 100), color = (255, 255, 255))
+        arialfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=120)
+        img_nom_titre = Image.new('RGB', (500, 112), color = (255, 255, 255))
         d = ImageDraw.Draw(img_nom_titre)
-        titre = "Prénom"
-        d.text((10,0), str(titre), fill=(0, 0, 0), font=boldfont)
+        titre = "Prénom : "
+        d.text((10,0), str(titre), fill=(0, 0, 0), font=arialfont)
         my_buffered = BytesIO()
         img_nom_titre.save(my_buffered, format="png")
         label_prenom = base64.b64encode(my_buffered.getvalue())
 
         # label_telephone as image
-        boldfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arialbd.ttf", size=80)
-        img_label_tel = Image.new('RGB', (500, 100), color = (255, 255, 255))
+        arialfont2 = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=62)
+        img_label_tel = Image.new('RGB', (329, 100), color = (255, 255, 255))
         d = ImageDraw.Draw(img_label_tel)
-        titre = "Téléphone"
-        d.text((10,0), str(titre), fill=(0, 0, 0), font=boldfont)
+        titre = "Téléphone :"
+        d.text((10,-13), str(titre), fill=(0, 0, 0), font=arialfont2)
         my_buffered = BytesIO()
         img_label_tel.save(my_buffered, format="png")
         label_tel = base64.b64encode(my_buffered.getvalue())
 
         # label_numero_assure as image
-        boldfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arialbd.ttf", size=60)
-        img_numero_titre = Image.new('RGB', (500, 100), color = (255, 255, 255))
+        arialfont3 = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=40)
+        img_numero_titre = Image.new('RGB', (240, 100), color = (255, 255, 255))
         d = ImageDraw.Draw(img_numero_titre)
-        titre = "N° d'assuré :"
-        d.text((10,10), str(titre), fill=(0, 0, 0), font=boldfont)
+        titre = "N° d'assuré : "
+        d.text((10,10), str(titre), fill=(0, 0, 0), font=arialfont3)
         my_buffered = BytesIO()
         img_numero_titre.save(my_buffered, format="png")
         label_numero_assure = base64.b64encode(my_buffered.getvalue())
 
         # label_date_validite as image
-        boldfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arialbd.ttf", size=50)
-        img_date_titre = Image.new('RGB', (500, 100), color = (255, 255, 255))
+        arialfont4 = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=62)
+        img_date_titre = Image.new('RGB', (550, 112), color = (255, 255, 255))
         d = ImageDraw.Draw(img_date_titre)
-        titre = "Date de validité :"
-        d.text((10,10), str(titre), fill=(0, 0, 0), font=boldfont)
+        titre = "Date de validité : "
+        d.text((10,0), str(titre), fill=(0, 0, 0), font=arialfont4)
         my_buffered = BytesIO()
         img_date_titre.save(my_buffered, format="png")
         label_date_validite = base64.b64encode(my_buffered.getvalue())
 
-        # label_date_validite as image
-        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arabic.ttf", size=70)
-        img_doc_titre = Image.new('RGB', (900, 100), color = (255, 255, 255))
+        # label_titre_doc as image
+        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=50)
+        img_doc_titre = Image.new('RGB', (970, 100), color = (255, 255, 255))
         d = ImageDraw.Draw(img_doc_titre)
         titre = "Attestation de droits à l'assurance maladie"
         d.text((10,10), str(titre), fill=(0, 0, 0), font=font)
