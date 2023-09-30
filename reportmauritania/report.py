@@ -1,7 +1,7 @@
 from distutils.command import upload
 # from reportmauritania.models import  beneficiary_card_query
 # from reportmauritania.report_templates import rptBeneficiaryCard
-from reportmauritania.models import  beneficiaries_list_card_query, beneficiaries_embership_card_query
+from reportmauritania.models import  beneficiaries_list_card_query, beneficiaries_membership_card_query
 from reportmauritania.report_templates import rptBeneficiaries_list_Card, rptBeneficiaries_membership_card
 
 
@@ -21,7 +21,7 @@ report_definitions = [
         "default_report":rptBeneficiaries_membership_card.template,
         "description": "Membership Card",
         "module": "reportmauritania",
-        "python_query": beneficiaries_embership_card_query, 
+        "python_query": beneficiaries_membership_card_query, 
         "permission": ["131215"],
     }
     

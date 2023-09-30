@@ -274,7 +274,7 @@ def beneficiaries_list_card_query(user, **kwargs):
     print(dictBase)
     return dictBase
 
-def beneficiaries_embership_card_query(user, **kwargs):
+def beneficiaries_membership_card_query(user, **kwargs):
     ids = kwargs.get("insureeids", [])
     insurees_ids = []
     if ids:
@@ -383,7 +383,7 @@ def beneficiaries_embership_card_query(user, **kwargs):
         img_prenom_str = base64.b64encode(my_buffered.getvalue())
 
         # Last name (Arab) as image
-        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arabic.ttf", size=60)
+        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arabic.ttf", size=65)
         img_prenom_arabe = Image.new('RGB', (500, 100), color = (255, 255, 255))
         d = ImageDraw.Draw(img_prenom_arabe)
         arab_other_names = insureeObj.arab_other_names or ""
@@ -409,7 +409,7 @@ def beneficiaries_embership_card_query(user, **kwargs):
         # Firstname as image
         img_nom = Image.new('RGB', (500, 100), color = (255, 255, 255))
         d = ImageDraw.Draw(img_nom)
-        d.text((10,10), str(insureeObj.last_name), fill=(63, 22, 168), font=font)
+        d.text((10,10), str(insureeObj.last_name), fill=(0, 0, 0), font=font)
         my_buffered = BytesIO()
         img_nom.save(my_buffered, format="png")
         img_nom_str = base64.b64encode(my_buffered.getvalue())
@@ -431,60 +431,10 @@ def beneficiaries_embership_card_query(user, **kwargs):
                     char += " "
                     i += 1
                 arab_last_name += char
-        d.text((10,10), str(arab_last_name), fill=(63, 22, 168), font=font, direction='rtl', align='right')
+        d.text((10,10), str(arab_last_name), fill=(0, 0, 0), font=font, direction='rtl', align='right')
         my_buffered = BytesIO()
         img_nom_arabe.save(my_buffered, format="png")
         img_nom_arabe_str = base64.b64encode(my_buffered.getvalue())
-
-        # label_prenom as image
-        arialfont = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=120)
-        img_nom_titre = Image.new('RGB', (500, 112), color = (255, 255, 255))
-        d = ImageDraw.Draw(img_nom_titre)
-        titre = "Prénom : "
-        d.text((10,0), str(titre), fill=(0, 0, 0), font=arialfont)
-        my_buffered = BytesIO()
-        img_nom_titre.save(my_buffered, format="png")
-        label_prenom = base64.b64encode(my_buffered.getvalue())
-
-        # label_telephone as image
-        arialfont2 = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=62)
-        img_label_tel = Image.new('RGB', (329, 100), color = (255, 255, 255))
-        d = ImageDraw.Draw(img_label_tel)
-        titre = "Téléphone :"
-        d.text((10,-13), str(titre), fill=(0, 0, 0), font=arialfont2)
-        my_buffered = BytesIO()
-        img_label_tel.save(my_buffered, format="png")
-        label_tel = base64.b64encode(my_buffered.getvalue())
-
-        # label_numero_assure as image
-        arialfont3 = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=40)
-        img_numero_titre = Image.new('RGB', (240, 100), color = (255, 255, 255))
-        d = ImageDraw.Draw(img_numero_titre)
-        titre = "N° d'assuré : "
-        d.text((10,10), str(titre), fill=(0, 0, 0), font=arialfont3)
-        my_buffered = BytesIO()
-        img_numero_titre.save(my_buffered, format="png")
-        label_numero_assure = base64.b64encode(my_buffered.getvalue())
-
-        # label_date_validite as image
-        arialfont4 = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=62)
-        img_date_titre = Image.new('RGB', (550, 112), color = (255, 255, 255))
-        d = ImageDraw.Draw(img_date_titre)
-        titre = "Date de validité : "
-        d.text((10,0), str(titre), fill=(0, 0, 0), font=arialfont4)
-        my_buffered = BytesIO()
-        img_date_titre.save(my_buffered, format="png")
-        label_date_validite = base64.b64encode(my_buffered.getvalue())
-
-        # label_titre_doc as image
-        font = ImageFont.truetype("/openimis-be/openIMIS/fonts/arial.ttf", size=50)
-        img_doc_titre = Image.new('RGB', (970, 100), color = (255, 255, 255))
-        d = ImageDraw.Draw(img_doc_titre)
-        titre = "Attestation de droits à l'assurance maladie"
-        d.text((10,10), str(titre), fill=(0, 0, 0), font=font)
-        my_buffered = BytesIO()
-        img_doc_titre.save(my_buffered, format="png")
-        label_titre_doc = base64.b64encode(my_buffered.getvalue())
 
         mydata = {
             "QrCode": "data:image/PNG;base64,"+img_str.decode("utf-8"),
@@ -497,23 +447,22 @@ def beneficiaries_embership_card_query(user, **kwargs):
             "imageNom": "data:image/PNG;base64,"+img_nom_str.decode("utf-8"),
             "imagePrenomArabe": "data:image/PNG;base64,"+img_prenom_arabe_str.decode("utf-8"),
             "imageNomArabe": "data:image/PNG;base64,"+img_nom_arabe_str.decode("utf-8"),
-            "titre_prenom": "data:image/PNG;base64,"+label_prenom.decode("utf-8"),
-            "titre_tel": "data:image/PNG;base64,"+label_tel.decode("utf-8"),
-            "titre_numero_assuree": "data:image/PNG;base64,"+label_numero_assure.decode("utf-8"),
-            "titre_date_validite": "data:image/PNG;base64,"+label_date_validite.decode("utf-8"),
             "telephone": insureeObj.phone,
             "numAsuree": insureeObj.chf_id,
-            "image_titre_doc": "data:image/PNG;base64,"+label_titre_doc.decode("utf-8"),
         }
         if insureeObj.type_of_id:
             if insureeObj.type_of_id.code == "N":
                 if insureeObj.passport:
                     mydata.update({"nni": insureeObj.passport})
         if insuree_policy:
+            date_ouverture_droit = datetime.datetime.strptime(str(insuree_policy.policy.effective_date), '%Y-%m-%d').strftime("%d-%m-%Y")
+            expiry_date = datetime.datetime.strptime(str(insuree_policy.policy.expiry_date), '%Y-%m-%d').strftime("%d-%m-%Y")
             mydata.update({
-                "DateOuvertureDroit": str(insuree_policy.start_date),
-                "DateValidite": str(insuree_policy.effective_date),
-                "MontantCotisation": str(insuree_policy.policy.value)
+                "DateOuvertureDroit": str(insuree_policy.policy.effective_date),
+                "DateValidite": str(insuree_policy.policy.expiry_date),
+                "DateOuvertureDroitArabe": str(date_ouverture_droit),
+                "DateValiditeArabe": str(expiry_date),
+                "MontantCotisation": str("{:,.0f}".format(float(int(insuree_policy.policy.value))))
                 }
             )
         insurees_data.append(mydata)
