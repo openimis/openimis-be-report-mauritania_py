@@ -424,8 +424,8 @@ def amount_to_text_fr(number, currency):
     return final_result
 
 def invoice_report_query(user, **kwargs):
-    date_from = kwargs.get("date_from")
-    date_to = kwargs.get("date_to")
+    date_from = kwargs.get("dateFrom")
+    date_to = kwargs.get("dateTo")
     hflocation = kwargs.get("hflocation")
     format = "%Y-%m-%d"
     date_from_object = datetime.datetime.strptime(date_from, format)
