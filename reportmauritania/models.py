@@ -440,7 +440,7 @@ def invoice_report_query(user, **kwargs):
     dictBase = {
         "date_impression": str(maintenant).replace("/", "."),
         "mois_facturation": str(date_from_str).split("/")[1],
-        "periode": str(date_from_str).replace("/", ".") + " au " + date_to_str,
+        "periode": str(date_from_str).replace("/", ".") + " au " + str(date_to_str).replace("/", "."),
         "data1": "Numéro de compte de la structure sanitaire:\nN°: ",
         "data2": "Adresse:\n\nTéléphone:\n\nE-mail:"
     }
@@ -466,7 +466,7 @@ def invoice_report_query(user, **kwargs):
         if hflocation_obj.acc_code:
             dictBase["data1"] +=  hflocation_obj.acc_code
         claim_list = Claim.objects.filter(
-            status=4
+            status=16
         ).filter(
             date_to__gte=date_from,
             date_to__lte=date_to,
