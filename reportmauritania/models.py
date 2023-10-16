@@ -745,14 +745,11 @@ def beneficiaries_membership_card_query(user, **kwargs):
             "telephone": insureeObj.phone,
             "numAsuree": insureeObj.chf_id,
         }
-        if insureeObj.type_of_id:
-            if insureeObj.type_of_id.code == "N":
-                if insureeObj.passport:
-                    mydata.update({"nni": insureeObj.passport})
         if insuree_policy:
             date_ouverture_droit = datetime.datetime.strptime(str(insuree_policy.policy.effective_date), '%Y-%m-%d').strftime("%d-%m-%Y")
             expiry_date = datetime.datetime.strptime(str(insuree_policy.policy.expiry_date), '%Y-%m-%d').strftime("%d-%m-%Y")
             mydata.update({
+                "nni": insureeObj.passport or ""
                 "DateOuvertureDroit": str(insuree_policy.policy.effective_date),
                 "DateValidite": str(insuree_policy.policy.expiry_date),
                 "DateOuvertureDroitArabe": str(date_ouverture_droit),
