@@ -18,6 +18,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import imghdr, time
 from claim.models import Claim, ClaimService, ClaimItem
+from core import fields
 
 val_de_zero = [
     'million', 'milliard', 'billion',
@@ -423,6 +424,19 @@ def amount_to_text_fr(number, currency):
     final_result = start_word +' '+units_name
     return final_result
 
+
+class PrintedReportsHistory(models.Model):
+    """ Class PrintedReportsHistory :
+    Class for reports already printed
+    """
+    seq = models.CharField(primary_key=True, db_column='Sequence', max_length=6)
+    fosa = models.CharField(db_column='Fosa', max_length=248)
+    start_date = fields.DateField(db_column='startDate', blank=True, null=True)
+    end_date = fields.DateField(db_column='endDate', blank=True, null=True)
+
+    class Meta:
+        db_table = "tblPrintedReportsHistory"
+
 def invoice_report_query(user, **kwargs):
     date_from = kwargs.get("dateFrom")
     date_to = kwargs.get("dateTo")
@@ -433,13 +447,44 @@ def invoice_report_query(user, **kwargs):
 
     date_to_object = datetime.datetime.strptime(date_to, format)
     date_to_str = date_to_object.strftime("%d/%m/%Y")
+    report_fetch = PrintedReportsHistory.objects.filter(
+        start_date=date_from,
+        end_date=date_to
+    )
+    print("report_fetch ", report_fetch)
+    if report_fetch:
+        numero_facture = report_fetch[0].seq
+        print("Exitant ", numero_facture)
+    else:
+        print("Non exitant")
+        report_max_seq = PrintedReportsHistory.objects.all().order_by('-seq').first()
+        prochain = 1
+        if report_max_seq:
+            prochain = int(report_max_seq.seq) + 1
+        numero_facture = "{:0>6}".format(str(prochain))
+        PrintedReportsHistory.objects.create(
+            **{
+                "seq": "{:0>6}".format(str(prochain)),
+                "fosa": hflocation,
+                "start_date": date_from,
+                "end_date": date_to
+            }
+        )   
 
     dict_geo = {}
     data = []
     maintenant = time.strftime("%d/%m/%Y")
+    mois = ""
+    debut = int(str(date_from_str).split("/")[1])
+    fin = int(str(date_to_str).split("/")[1])
+    for i in range(debut, fin+1):
+        mois += str(i)
+        if i != fin:
+            mois += ", "
     dictBase = {
         "date_impression": str(maintenant).replace("/", "."),
-        "mois_facturation": str(date_from_str).split("/")[1],
+        "mois_facturation": mois,
+        "numero_facture": numero_facture,
         "periode": str(date_from_str).replace("/", ".") + " au " + str(date_to_str).replace("/", "."),
         "data1": "Numéro de compte de la structure sanitaire:\nN°: ",
         "data2": "Adresse:\n\nTéléphone:\n\nE-mail:"
@@ -466,10 +511,10 @@ def invoice_report_query(user, **kwargs):
         if hflocation_obj.acc_code:
             dictBase["data1"] +=  hflocation_obj.acc_code
         claim_list = Claim.objects.filter(
-            status=16
+            status__gte=4
         ).filter(
-            date_to__gte=date_from,
-            date_to__lte=date_to,
+            date_processed__gte=date_from,
+            date_processed__lte=date_to,
             validity_to__isnull=True,
             **dict_geo
         )
