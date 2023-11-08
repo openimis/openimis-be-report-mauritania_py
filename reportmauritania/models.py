@@ -552,14 +552,14 @@ def invoice_report_query(user, **kwargs):
                 for claim_service in claim_services:
                     montant_ticket_moderateur = 0
                     if claim_service.price_valuated:
-                        if claim_service.price_asked > claim_service.price_valuated:
-                            montant_ticket_moderateur = claim_service.price_asked - claim_service.price_valuated
+                        if claim_service.service.price > claim_service.price_valuated:
+                            montant_ticket_moderateur = claim_service.service.price - claim_service.price_valuated
                             total_montant_moderateur += montant_ticket_moderateur
-                    total_forfait += claim_service.price_asked
+                    total_forfait += claim_service.service.price
                     val = {
                         "numero": str(count),
                         "type_visite": type_visite,
-                        "montant_forfait": str("{:,.0f}".format(claim_service.price_asked)),
+                        "montant_forfait": str("{:,.0f}".format(claim_service.service.price)),
                         "montant_ticket_moderateur": str("{:,.0f}".format(montant_ticket_moderateur)),
                         "code_assure": claim.insuree.chf_id,
                         "nom_complet": claim.insuree.last_name + " " + claim.insuree.other_names,
@@ -595,14 +595,14 @@ def invoice_report_query(user, **kwargs):
                 for claim_item in claim_items:
                     montant_ticket_moderateur = 0
                     if claim_item.price_valuated:
-                        if claim_item.price_asked > claim_item.price_valuated:
-                            montant_ticket_moderateur = claim_item.price_asked - claim_item.price_valuated
+                        if claim_item.item.price > claim_item.price_valuated:
+                            montant_ticket_moderateur = claim_item.item.price - claim_item.price_valuated
                             total_montant_moderateur += montant_ticket_moderateur
-                    total_forfait += claim_item.price_asked
+                    total_forfait += claim_item.item.price
                     val = {
                         "numero": str(count),
                         "type_visite": type_visite,
-                        "montant_forfait": str("{:,.0f}".format(claim_item.price_asked)),
+                        "montant_forfait": str("{:,.0f}".format(claim_item.item.price)),
                         "montant_ticket_moderateur": str("{:,.0f}".format(montant_ticket_moderateur)),
                         "code_assure": claim.insuree.chf_id,
                         "nom_complet": claim.insuree.last_name + " " + claim.insuree.other_names,
@@ -733,14 +733,14 @@ def invoice_report_query_payment(user, **kwargs):
                 for claim_service in claim_services:
                     montant_ticket_moderateur = 0
                     if claim_service.price_valuated:
-                        if claim_service.price_asked > claim_service.price_valuated:
-                            montant_ticket_moderateur = claim_service.price_asked - claim_service.price_valuated
+                        if claim_service.service.price > claim_service.price_valuated:
+                            montant_ticket_moderateur = claim_service.service.price - claim_service.price_valuated
                             total_montant_moderateur += montant_ticket_moderateur
-                    total_forfait += claim_service.price_asked
+                    total_forfait += claim_service.service.price
                     val = {
                         "numero": str(count),
                         "type_visite": type_visite,
-                        "montant_forfait": str("{:,.0f}".format(claim_service.price_asked)),
+                        "montant_forfait": str("{:,.0f}".format(claim_service.service.price)),
                         "montant_ticket_moderateur": str("{:,.0f}".format(montant_ticket_moderateur)),
                         "code_assure": claim.insuree.chf_id,
                         "nom_complet": claim.insuree.last_name + " " + claim.insuree.other_names,
@@ -776,14 +776,14 @@ def invoice_report_query_payment(user, **kwargs):
                 for claim_item in claim_items:
                     montant_ticket_moderateur = 0
                     if claim_item.price_valuated:
-                        if claim_item.price_asked > claim_item.price_valuated:
-                            montant_ticket_moderateur = claim_item.price_asked - claim_item.price_valuated
+                        if claim_item.item.price > claim_item.price_valuated:
+                            montant_ticket_moderateur = claim_item.item.price - claim_item.price_valuated
                             total_montant_moderateur += montant_ticket_moderateur
-                    total_forfait += claim_item.price_asked
+                    total_forfait += claim_item.item.price
                     val = {
                         "numero": str(count),
                         "type_visite": type_visite,
-                        "montant_forfait": str("{:,.0f}".format(claim_item.price_asked)),
+                        "montant_forfait": str("{:,.0f}".format(claim_item.item.price)),
                         "montant_ticket_moderateur": str("{:,.0f}".format(montant_ticket_moderateur)),
                         "code_assure": claim.insuree.chf_id,
                         "nom_complet": claim.insuree.last_name + " " + claim.insuree.other_names,
