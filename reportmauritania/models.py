@@ -18,6 +18,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import imghdr, time
 from claim.models import Claim, ClaimService, ClaimItem
+from core import fields
 
 val_de_zero = [
     'million', 'milliard', 'billion',
@@ -423,6 +424,20 @@ def amount_to_text_fr(number, currency):
     final_result = start_word +' '+units_name
     return final_result
 
+
+class PrintedReportsHistory(models.Model):
+    """ Class PrintedReportsHistory :
+    Class for reports already printed
+    """
+    id = models.AutoField(db_column='ID', primary_key=True)
+    seq = models.CharField(db_column='Sequence', max_length=6)
+    fosa = models.CharField(db_column='Fosa', max_length=248)
+    start_date = fields.DateField(db_column='startDate', blank=True, null=True)
+    end_date = fields.DateField(db_column='endDate', blank=True, null=True)
+
+    class Meta:
+        db_table = "tblPrintedReportsHistory"
+
 def invoice_report_query(user, **kwargs):
     date_from = kwargs.get("dateFrom")
     date_to = kwargs.get("dateTo")
@@ -433,13 +448,230 @@ def invoice_report_query(user, **kwargs):
 
     date_to_object = datetime.datetime.strptime(date_to, format)
     date_to_str = date_to_object.strftime("%d/%m/%Y")
+    report_fetch = PrintedReportsHistory.objects.filter(
+        start_date=date_from,
+        end_date=date_to,
+        fosa=hflocation
+    )
+    print("report_fetch ", report_fetch)
+    if report_fetch:
+        numero_facture = report_fetch[0].seq
+        print("Exitant ", numero_facture)
+    else:
+        print("Non exitant")
+        report_max_seq = PrintedReportsHistory.objects.filter(
+            fosa=hflocation
+        ).order_by('-seq').first()
+        prochain = 1
+        if report_max_seq:
+            prochain = int(report_max_seq.seq) + 1
+        numero_facture = "{:0>6}".format(str(prochain))
+        PrintedReportsHistory.objects.create(
+            **{
+                "seq": "{:0>6}".format(str(prochain)),
+                "fosa": hflocation,
+                "start_date": date_from,
+                "end_date": date_to
+            }
+        )   
 
     dict_geo = {}
     data = []
     maintenant = time.strftime("%d/%m/%Y")
+    annee = date_from_str.split("/")[2]
+    mois = ""
+    debut = int(str(date_from_str).split("/")[1])
+    fin = int(str(date_to_str).split("/")[1])
+    for i in range(debut, fin+1):
+        mois += str(i)
+        if i != fin:
+            mois += ", "
     dictBase = {
         "date_impression": str(maintenant).replace("/", "."),
-        "mois_facturation": str(date_from_str).split("/")[1],
+        "mois_facturation": mois,
+        "numero_facture": hflocation + "/" + annee + "/" + str(date_from_str).split("/")[1] + "/" + numero_facture,
+        "periode": str(date_from_str).replace("/", ".") + " au " + str(date_to_str).replace("/", "."),
+        "data1": "Numéro de compte de la structure sanitaire:\nN°: ",
+        "data2": "Adresse:\n\nTéléphone:\n\nE-mail:"
+    }
+    total_forfait = 0
+    total_montant_moderateur = 0
+    if hflocation:
+        hflocation_obj = HealthFacility.objects.filter(
+            code=hflocation,
+            validity_to__isnull=True
+            ).first()
+        dictBase["fosa"] = hflocation_obj.name
+        dictBase["responsable"] = hflocation_obj.responsible or ""
+        adresse = "Adresse:\n\n"
+        if hflocation_obj.address:
+            adresse = "Adresse: " + hflocation_obj.address + "\n\n"
+        telephone = "Téléphone: \n\n"
+        if hflocation_obj.phone:
+            telephone = "Téléphone: " + hflocation_obj.phone + "\n\n"
+        email = "E-mail: "
+        if hflocation_obj.email:
+            email = "E-mail: " + hflocation_obj.email
+        dictBase["data2"] = adresse + telephone + email
+        if hflocation_obj.acc_code:
+            dictBase["data1"] +=  hflocation_obj.acc_code
+        claim_list = Claim.objects.filter(
+            status__gte=4
+        ).filter(
+            submit_stamp__gte=date_from,
+            submit_stamp__lte=date_to,
+            validity_to__isnull=True,
+            health_facility=hflocation_obj.id,
+            **dict_geo
+        )
+        count = 1
+        if claim_list:
+            for claim in claim_list:
+                claim_services = ClaimService.objects.filter(
+                    claim = claim,
+                    status=1
+                )
+                type_visite = ""
+                if claim.visit_type == "1":
+                    type_visite = "Urgence"
+                elif claim.visit_type == "2":
+                    type_visite = "Référence"
+                elif claim.visit_type == "3":
+                    type_visite = "Maladie"
+                elif claim.visit_type == "4":
+                    type_visite = "Maternité"
+                elif claim.visit_type == "5":
+                    type_visite = "Suivi de l'HTA"
+                elif claim.visit_type == "6":
+                    type_visite = "Suivi du diabète"
+                elif claim.visit_type == "7":
+                    type_visite = "Réanimation"
+                elif claim.visit_type == "8":
+                    type_visite = "AVP"
+                elif claim.visit_type == "9":
+                    type_visite = "Autres"
+                for claim_service in claim_services:
+                    montant_ticket_moderateur = 0
+                    if claim_service.price_valuated:
+                        if claim_service.service.price > claim_service.price_valuated:
+                            montant_ticket_moderateur = claim_service.service.price - claim_service.price_valuated
+                            total_montant_moderateur += montant_ticket_moderateur
+                    total_forfait += claim_service.service.price
+                    val = {
+                        "numero": str(count),
+                        "type_visite": type_visite,
+                        "montant_forfait": str("{:,.0f}".format(claim_service.service.price)),
+                        "montant_ticket_moderateur": str("{:,.0f}".format(montant_ticket_moderateur)),
+                        "code_assure": claim.insuree.chf_id,
+                        "nom_complet": claim.insuree.last_name + " " + claim.insuree.other_names,
+                        "date_prestation": str(claim.date_from),
+                        "numero_feuille": claim.code
+                    }
+                    count +=1
+                    data.append(val)
+            for claim in claim_list:
+                claim_items = ClaimItem.objects.filter(
+                    claim = claim,
+                    status=1
+                )
+                type_visite = ""
+                if claim.visit_type == "1":
+                    type_visite = "Urgence"
+                elif claim.visit_type == "2":
+                    type_visite = "Référence"
+                elif claim.visit_type == "3":
+                    type_visite = "Maladie"
+                elif claim.visit_type == "4":
+                    type_visite = "Maternité"
+                elif claim.visit_type == "5":
+                    type_visite = "Suivi de l'HTA"
+                elif claim.visit_type == "6":
+                    type_visite = "Suivi du diabète"
+                elif claim.visit_type == "7":
+                    type_visite = "Réanimation"
+                elif claim.visit_type == "8":
+                    type_visite = "AVP"
+                elif claim.visit_type == "9":
+                    type_visite = "Autres"
+                for claim_item in claim_items:
+                    montant_ticket_moderateur = 0
+                    if claim_item.price_valuated:
+                        if claim_item.item.price > claim_item.price_valuated:
+                            montant_ticket_moderateur = claim_item.item.price - claim_item.price_valuated
+                            total_montant_moderateur += montant_ticket_moderateur
+                    total_forfait += claim_item.item.price
+                    val = {
+                        "numero": str(count),
+                        "type_visite": type_visite,
+                        "montant_forfait": str("{:,.0f}".format(claim_item.item.price)),
+                        "montant_ticket_moderateur": str("{:,.0f}".format(montant_ticket_moderateur)),
+                        "code_assure": claim.insuree.chf_id,
+                        "nom_complet": claim.insuree.last_name + " " + claim.insuree.other_names,
+                        "date_prestation": str(claim.date_from),
+                        "numero_feuille": claim.code
+                    }
+                    count +=1
+                    data.append(val)
+    dictBase["total_forfait"] = str("{:,.0f}".format(total_forfait))
+    dictBase["total_moderateur"] = str("{:,.0f}".format(total_montant_moderateur))
+    dictBase["total_a_payer"] = str("{:,.0f}".format(total_forfait - total_montant_moderateur))
+    dictBase["montant_en_lettre"] = amount_to_text_fr(int(total_forfait - total_montant_moderateur), 'MRU')
+    dictBase["service_and_itemsList"] = data
+    # print(dictBase)
+    return dictBase
+
+def invoice_report_query_payment(user, **kwargs):
+    date_from = kwargs.get("dateFrom")
+    date_to = kwargs.get("dateTo")
+    hflocation = kwargs.get("hflocation")
+    format = "%Y-%m-%d"
+    date_from_object = datetime.datetime.strptime(date_from, format)
+    date_from_str = date_from_object.strftime("%d/%m/%Y")
+
+    date_to_object = datetime.datetime.strptime(date_to, format)
+    date_to_str = date_to_object.strftime("%d/%m/%Y")
+    report_fetch = PrintedReportsHistory.objects.filter(
+        start_date=date_from,
+        end_date=date_to,
+        fosa=hflocation
+    )
+    print("report_fetch ", report_fetch)
+    if report_fetch:
+        numero_facture = report_fetch[0].seq
+        print("Exitant ", numero_facture)
+    else:
+        print("Non exitant")
+        report_max_seq = PrintedReportsHistory.objects.filter(
+            fosa=hflocation
+        ).order_by('-seq').first()
+        prochain = 1
+        if report_max_seq:
+            prochain = int(report_max_seq.seq) + 1
+        numero_facture = "{:0>6}".format(str(prochain))
+        PrintedReportsHistory.objects.create(
+            **{
+                "seq": "{:0>6}".format(str(prochain)),
+                "fosa": hflocation,
+                "start_date": date_from,
+                "end_date": date_to
+            }
+        )   
+
+    dict_geo = {}
+    data = []
+    maintenant = time.strftime("%d/%m/%Y")
+    annee = date_from_str.split("/")[2]
+    mois = ""
+    debut = int(str(date_from_str).split("/")[1])
+    fin = int(str(date_to_str).split("/")[1])
+    for i in range(debut, fin+1):
+        mois += str(i)
+        if i != fin:
+            mois += ", "
+    dictBase = {
+        "date_impression": str(maintenant).replace("/", "."),
+        "mois_facturation": mois,
+        "numero_facture": hflocation + "/" + annee + "/" + str(date_from_str).split("/")[1] + "/" + numero_facture,
         "periode": str(date_from_str).replace("/", ".") + " au " + str(date_to_str).replace("/", "."),
         "data1": "Numéro de compte de la structure sanitaire:\nN°: ",
         "data2": "Adresse:\n\nTéléphone:\n\nE-mail:"
@@ -468,9 +700,10 @@ def invoice_report_query(user, **kwargs):
         claim_list = Claim.objects.filter(
             status=16
         ).filter(
-            date_to__gte=date_from,
-            date_to__lte=date_to,
+            submit_stamp__gte=date_from,
+            submit_stamp__lte=date_to,
             validity_to__isnull=True,
+            health_facility=hflocation_obj.id,
             **dict_geo
         )
         count = 1
