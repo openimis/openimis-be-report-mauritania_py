@@ -521,6 +521,7 @@ def invoice_report_query(user, **kwargs):
             submit_stamp__gte=date_from,
             submit_stamp__lte=date_to,
             validity_to__isnull=True,
+            health_facility=hflocation_obj.id,
             **dict_geo
         )
         count = 1
@@ -702,6 +703,7 @@ def invoice_report_query_payment(user, **kwargs):
             submit_stamp__gte=date_from,
             submit_stamp__lte=date_to,
             validity_to__isnull=True,
+            health_facility=hflocation_obj.id,
             **dict_geo
         )
         count = 1
